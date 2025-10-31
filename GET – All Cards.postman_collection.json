@@ -1,0 +1,241 @@
+{
+	"info": {
+		"_postman_id": "8b6fdbc2-185a-48a6-9639-e8af191af29e",
+		"name": "GET – All Cards",
+		"description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49694292",
+		"_collection_link": "https://katrinerosa-8155344.postman.co/workspace/Katrine-Rosa-Beck's-Workspace~5a0a99a0-f32e-48d8-8a25-e840db26af20/collection/49694292-8b6fdbc2-185a-48a6-9639-e8af191af29e?action=share&source=collection_link&creator=49694292"
+	},
+	"item": [
+		{
+			"name": "POST – Create Card",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "HEMMELIGT_TOKEN",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"The Sun\",\n  \"arcana\": \"Major\",\n  \"element\": \"Fire\",\n  \"number\": 19,\n  \"description\": \"Joy, success, and enlightenment.\",\n  \"upright_meaning\": \"happiness, clarity, vitality\",\n  \"reversed_meaning\": \"temporary doubt, fatigue, confusion\",\n  \"image_url\": \"images/the_sun.jpg\",\n  \"keywords\": \"joy, vitality, warmth\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8888/tarot-api/index.php",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"tarot-api",
+						"index.php"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE – Remove Card",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "HEMMELIGT_TOKEN",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8888/tarot-api/index.php/cards/23",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"tarot-api",
+						"index.php",
+						"cards",
+						"23"
+					]
+				},
+				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - remove Cards",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "HEMMELIGT_TOKEN",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8888/tarot-api/index.php/cards/22",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"tarot-api",
+						"index.php",
+						"cards",
+						"22"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT-testen",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "HEMMELIGT_TOKEN",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"image_url\": \"https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg\",\n  \"description\": \"Joy, success, and enlightenment.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8888/tarot-api/index.php/cards/24",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"tarot-api",
+						"index.php",
+						"cards",
+						"24"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET-test",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "HEMMELIGT_TOKEN",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8888/tarot-api/index.php/cards/17?co",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"tarot-api",
+						"index.php",
+						"cards",
+						"17"
+					],
+					"query": [
+						{
+							"key": "co",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
