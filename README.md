@@ -1,11 +1,11 @@
 # Tarot API
 
-En simpel PHP-baseret REST API til tarotkort og readings. Projektet kører på MAMP (PHP 8 + MySQL) og leverer JSON, som både kan bruges af mit eget frontend (fx `index.html`) eller andre apps.
+Jeg har bygget en simpel PHP-baseret REST API til tarotkort og readings. Projektet kører bedst på MAMP (PHP 8 + MySQL) og svarer med JSON, så jeg kan bruge data i `index.html` eller andre klienter.
 
 ## Kom godt i gang
-- Start MAMP og tjek at MySQL bruger port `8889` og socket `.../mysql.sock` – det matcher `config.php`.
-- Opret databasen `tarot` i phpMyAdmin (eller via terminal): `CREATE DATABASE tarot CHARACTER SET utf8mb4;`.
-- Opret tabellen `cards` med de felter API’et forventer. Eksempel:
+- Jeg starter MAMP og sikrer mig, at MySQL bruger port `8889` og socket `.../mysql.sock`, så det matcher `config.php`.
+- Jeg opretter databasen `tarot` i phpMyAdmin (eller via terminal): `CREATE DATABASE tarot CHARACTER SET utf8mb4;`.
+- Jeg opretter tabellen `cards`, så den passer til det API’et forventer:
 
   ```sql
   CREATE TABLE cards (
@@ -26,12 +26,13 @@ En simpel PHP-baseret REST API til tarotkort og readings. Projektet kører på M
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   ```
 
-- Indsæt kortdata i tabellen (brug evt. CSV → SQL import i phpMyAdmin).
-- Åbn `http://localhost:8888/tarot-api/index.php` for selve API’et eller `index.html` for demo UI’et (VSCodes Live Server eller MAMP kan levere HTML’en).
+- Jeg lægger mine kortdata ind i tabellen (CSV-import i phpMyAdmin fungerer fint).
+- Jeg åbner `http://localhost:8888/tarot-api/index.php` for selve API’et eller `index.html` for demo-UI’et (enten via MAMP eller VS Codes Live Server).
 
-> Tabellen `readings` bliver automatisk oprettet første gang man kalder `/readings`, så den skal ikke laves manuelt.
+> Tabellen `readings` bliver oprettet automatisk første gang jeg kalder `/readings`, så den laver jeg ikke manuelt.
 
 ## API-overblik
+- Når jeg vil skifte API-nøgle, ændrer jeg værdien i `index.php:713` (funktionen `requireApiKey`) og bruger den nye nøgle i alle requests.
 - `GET /cards` – alle kort. Filtre: `?arcana=Major|Minor`, `?element=Air|Fire|Water|Earth`, `?q=tekst`.
 - `GET /cards?random=1` – tilfældigt kort.
 - `GET /cards/{id}` – enkelt kort.
@@ -39,35 +40,31 @@ En simpel PHP-baseret REST API til tarotkort og readings. Projektet kører på M
 - `GET /readings` og `GET /readings/{id}` – liste eller enkelt reading.
 - `POST /readings`, `PUT /readings/{id}`, `DELETE /readings/{id}` – også beskyttet af `X-API-Key`.
 
-Alle succes-svar er JSON. Fejl-returneringer indeholder `"error"` og `"message"` på dansk, så man kan se hvad der mangler.
+Alle succes-svar er JSON. Fejl-returneringer har `"error"` og `"message"` på dansk, så jeg nemt ser hvad der mangler.
 
 ## Lokal test
-- Brug `curl` eller et REST-værktøj (Insomnia/Postman). Eksempel:
+- Jeg bruger `curl` eller et REST-værktøj (Insomnia/Postman). Eksempel:
 
   ```bash
   curl http://localhost:8888/tarot-api/index.php/cards?arcana=Major
   ```
 
-- Til requests HUSK! JSON-body (`-H "Content-Type: application/json" -d '{...}'`) og API-nøglen (`-H "X-API-Key: HEMMELIGT_TOKEN"`).
+- `localhost:8888` er MAMPs standard for Apache; ændrer jeg porten i MAMP, justerer jeg URL’en tilsvarende (fx `localhost:8890`).
+- Til skrivende requests husker jeg JSON-body (`-H "Content-Type: application/json" -d '{...}'`) og API-nøglen (`-H "X-API-Key: HEMMELIGT_TOKEN"`).
 
 ## Frontend-demo
-`index.html` kalder API’et og viser kortene i et grid med filtrering. Filen forventer, at API’et ligger på samme host/port; hvis man flytter API’et, så opdater `apiEndpoint` i bunden af HTML-filen.
+`index.html` kalder API’et og viser kortene i et grid med filtrering. Hvis jeg flytter API’et til en anden host eller port, opdaterer jeg `apiEndpoint` i bunden af HTML-filen.
+
+## HATEOAS – hvorfor jeg bruger det
+API’et sender ikke kun data tilbage, men også links med forslag til næste skridt. Når jeg fx henter et kort, får jeg links til:
+- `GET` for at hente kortet igen
+- `PUT` for at opdatere det
+- `DELETE` for at slette det
+
+Det gør API’et selvforklarende og løfter det fra en ren CRUD-implementering (Richardson Level 2) til Level 3 med HATEOAS.
 
 ## GitHub-workflow
-- Commits dukker nu op i `https://github.com/Katrinerosa/tarot-api`.
-- Push ændringer med `git push origin main`, og opret evt. README-opdateringer direkte her, hvis du justerer API’et fremover.
+- Mit repo ligger på `https://github.com/Katrinerosa/tarot-api`.
+- Jeg pusher nye ændringer med `git push origin main`, og jeg kan altid justere README eller kode direkte her i projektet.
 
-##HATEOAS – Hypermedia as the Engine of Application State
-
-HATEOAS betyder, at API’et ikke kun returnerer data, men også vejviser-links til, hvad klienten kan gøre som det næste.
-Det gør API’et selvforklarende og mere robust, fordi man ikke behøver kende alle URL’er på forhånd — de følger med i svaret.
-	
-  •	GET for at hente kortet igen
-	•	PUT for at opdatere det
-	•	DELETE for at slette det
-
-På den måde følger klienten API’et trin for trin — lidt som at navigere i et websted, hvor hvert svar indeholder links til næste side.
-Det er det, der løfter API’et fra Richardson Level 2 (ren CRUD) til Level 3 (selvbeskrivende API med HATEOAS).
-
-Jeg har i projektet lært, hvordan man opbygger et REST API fra bunden i PHP, og hvordan HTTP-metoder og statuskoder bruges rigtigt. Jeg har også fået en bedre forståelse for HATEOAS og hvordan et API kan være selvforklarende ved at inkludere links i sine svar.
-
+Jeg har lært at bygge et REST API fra bunden i PHP, bruge HTTP-metoder/statuskoder bevidst og tænke HATEOAS ind, så API’et guider klienten automatisk.
