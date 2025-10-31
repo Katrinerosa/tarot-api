@@ -57,5 +57,17 @@ Alle succes-svar er JSON. Fejl-returneringer indeholder `"error"` og `"message"`
 - Commits dukker nu op i `https://github.com/Katrinerosa/tarot-api`.
 - Push ændringer med `git push origin main`, og opret evt. README-opdateringer direkte her, hvis du justerer API’et fremover.
 
+##HATEOAS – Hypermedia as the Engine of Application State
 
+HATEOAS betyder, at API’et ikke kun returnerer data, men også vejviser-links til, hvad klienten kan gøre som det næste.
+Det gør API’et selvforklarende og mere robust, fordi man ikke behøver kende alle URL’er på forhånd — de følger med i svaret.
+	
+  •	GET for at hente kortet igen
+	•	PUT for at opdatere det
+	•	DELETE for at slette det
+
+På den måde følger klienten API’et trin for trin — lidt som at navigere i et websted, hvor hvert svar indeholder links til næste side.
+Det er det, der løfter API’et fra Richardson Level 2 (ren CRUD) til Level 3 (selvbeskrivende API med HATEOAS).
+
+Jeg har i projektet lært, hvordan man opbygger et REST API fra bunden i PHP, og hvordan HTTP-metoder og statuskoder bruges rigtigt. Jeg har også fået en bedre forståelse for HATEOAS og hvordan et API kan være selvforklarende ved at inkludere links i sine svar.
 
