@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tarot Cards</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; background: #f5f5f5; }
+    h1 { margin-bottom: 1rem; }
+    input { padding: 0.5rem; width: 200px; }
+    button { padding: 0.5rem 1rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      cursor: default;
+    }
+    .card:focus-visible {
+      outline: 3px solid #6c5ce7;
+      outline-offset: 4px;
+    }
+    .card-face {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      text-align: center;
+      align-items: center;
+      cursor: pointer;
+    }
+    .card-face img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .card-face h3 {
+      margin: 0.5rem 0 0;
+      font-size: 1rem;
+    }
+    .card-face p {
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .keywords {
+      font-size: 0.8rem;
+      color: #555;
+    }
+    .flip-hint {
+      font-size: 0.75rem;
+      color: #777;
+    }
+    .card.is-open .flip-hint {
+      display: none;
+    }
+    .card-details {
+      text-align: left;
+      display: none;
+      gap: 0.75rem;
+    }
+    .card-details section {
+      margin-bottom: 0.75rem;
+    }
+    .card-details h4 {
+      margin: 0 0 0.25rem;
+      font-size: 0.9rem;
+      color: #111;
+    }
+    .card-details p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #333;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .card.is-open .card-details {
+      display: block;
+    }
+    .filter-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.2rem;
+  margin: 1rem 0 2rem;
+  align-items: center;
+}
+
+.filter-box label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+  color: #333;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.filter-box input[type="checkbox"] {
+  accent-color: rebeccapurple; /* fin lilla nuance */
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.filter-box label:hover {
+  background: #eee;
+  border-color: #bbb;
+}
+
+.filter-box button {
+  background: #7c3aed; /* lilla */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.filter-box button:hover {
+  background: #6d28d9;
+}
+    .create-card {
+      margin-top: 2rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .create-card h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    .create-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .create-card .form-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .create-card label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .create-card input,
+    .create-card select,
+    .create-card textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: #fafafa;
+    }
+    .create-card textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+    .create-card .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+    }
+    .create-card .status {
+      font-size: 0.85rem;
+      color: #555;
+      min-height: 1.2rem;
+    }
+    .create-card .status.success {
+      color: #047857;
+    }
+    .create-card .status.error {
+      color: #b91c1c;
+    }
+    .image-fallback {
+      width: 100%;
+      min-height: 10px;
+      display: grid;
+      place-items: center;
+      padding: 1.2rem;
+      background: #f1f1f1;
+      border-radius: 8px;
+      color: #555;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    .toggle-details {
+      align-self: center;
+      padding: 0.4rem 0.9rem;
+      border: none;
+      border-radius: 999px;
+      background: #6c5ce7;
+      color: #fff;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-details:hover,
+    .toggle-details:focus-visible {
+      background: #4b3ed7;
+      outline: none;
+    }
+    
+    @media (max-width: 640px) {
+      body {
+        margin: 1.5rem;
+      }
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Tarot API Viewer</h1>
+  <input id="search" placeholder="Søg kort…" />
+  <button id="btn">Søg</button>
+  <button id="random-btn">Træk et kort</button>
+  <div class="filter-box">
+  <label><input type="checkbox" name="arcana" value="Major"> Major</label>
+  <label><input type="checkbox" name="arcana" value="Minor"> Minor</label>
+  <label><input type="checkbox" name="element" value="Air"> Air</label>
+  <label><input type="checkbox" name="element" value="Fire"> Fire</label>
+  <label><input type="checkbox" name="element" value="Water"> Water</label>
+  <label><input type="checkbox" name="element" value="Earth"> Earth</label>
+  <button id="clear">Ryd</button>
+</div>
+
+<section class="create-card">
+  <h2>Tilføj nyt kort</h2>
+  <form id="create-card-form" novalidate>
+    <div class="form-grid">
+      <label>
+        Navn *
+        <input type="text" name="name" required placeholder="The Fool">
+      </label>
+      <label>
+        Arcana *
+        <select name="arcana" required>
+          <option value="">Vælg arcana</option>
+          <option value="Major">Major</option>
+          <option value="Minor">Minor</option>
+        </select>
+      </label>
+      <label>
+        Element *
+        <select name="element" required>
+          <option value="">Vælg element</option>
+          <option value="Air">Air</option>
+          <option value="Fire">Fire</option>
+          <option value="Water">Water</option>
+          <option value="Earth">Earth</option>
+        </select>
+      </label>
+      <label>
+        Nummer
+        <input type="number" name="number" min="0" step="1" placeholder="0">
+      </label>
+    </div>
+    <div class="form-grid">
+      <label>
+        Kulør / Suit
+        <input type="text" name="suit" placeholder="Wands">
+      </label>
+      <label>
+        Nøgleord
+        <input type="text" name="keywords" placeholder="Begyndelse, spontanitet">
+      </label>
+      <label>
+        Billede URL
+        <input type="url" name="image_url" placeholder="https://...">
+      </label>
+      <label>
+        API-nøgle
+        <input type="text" name="api_key" id="api-key" placeholder="HEMMELIGT_TOKEN">
+      </label>
+    </div>
+    <div class="form-grid">
+      <label>
+        Beskrivelse
+        <textarea name="description" placeholder="Overordnet beskrivelse af kortet"></textarea>
+      </label>
+      <label>
+        Opretning (upright)
+        <textarea name="upright_meaning" placeholder="Betydning når kortet vender normalt"></textarea>
+      </label>
+      <label>
+        Omvendt (reversed)
+        <textarea name="reversed_meaning" placeholder="Betydning når kortet vender omvendt"></textarea>
+      </label>
+    </div>
+    <div class="form-grid">
+      <label>
+        Kærlighed
+        <textarea name="love_meaning" placeholder="Fortolkning for kærlighed"></textarea>
+      </label>
+      <label>
+        Karriere
+        <textarea name="career_meaning" placeholder="Fortolkning for karriere"></textarea>
+      </label>
+      <label>
+        Spirituel
+        <textarea name="spiritual_meaning" placeholder="Fortolkning for spirituelle spørgsmål"></textarea>
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="submit">Gem kort</button>
+      <span class="status" id="create-card-message" role="status" aria-live="polite"></span>
+    </div>
+  </form>
+</section>
+
+<div class="grid" id="cards"></div>
+
+ 
+<script>
+  const inputs = [...document.querySelectorAll('input[name=arcana],input[name=element]')];
+  const clearBtn = document.getElementById('clear');
+
+  function buildQuery(){
+    const p = new URLSearchParams();
+    const a = inputs.filter(i=>i.name==='arcana' && i.checked).map(i=>i.value);
+    const e = inputs.filter(i=>i.name==='element' && i.checked).map(i=>i.value);
+    if (a.length===1) p.set('arcana', a[0]);      // én valgt → filter
+    if (e.length===1) p.set('element', e[0]);
+    return '?' + p.toString();
+  }
+
+  function reload(){ load(buildQuery()); } // bruger din load() fra før
+  inputs.forEach(i=>i.addEventListener('change', reload));
+  clearBtn.onclick = () => { inputs.forEach(i=>i.checked=false); load(''); };
+</script>
+
+  <script>
+    const apiEndpoint = 'index.php/cards';
+    const grid = document.getElementById('cards');
+    const search = document.getElementById('search');
+    const randomBtn = document.getElementById('random-btn');
+    const createForm = document.getElementById('create-card-form');
+    const createMessage = document.getElementById('create-card-message');
+    const apiKeyInput = document.getElementById('api-key');
+
+    let fullDeck = [];
+    let currentCards = [];
+    let lastQuery = '';
+
+    document.getElementById('btn').onclick = () => load(`?q=${encodeURIComponent(search.value)}`);
+    randomBtn.onclick = drawRandom;
+    grid.addEventListener('click', handleCardClick);
+    grid.addEventListener('keydown', handleFlipWithKeyboard);
+    grid.addEventListener('error', handleImageError, true);
+    if (createForm) {
+      createForm.addEventListener('submit', handleCreateCard);
+    }
+
+    load('');
+
+    async function handleCreateCard(event) {
+      event.preventDefault();
+      if (!createForm) {
+        return;
+      }
+
+      const submitBtn = createForm.querySelector('button[type="submit"]');
+      const formData = new FormData(createForm);
+      const name = String(formData.get('name') ?? '').trim();
+      const arcana = String(formData.get('arcana') ?? '').trim();
+      const element = String(formData.get('element') ?? '').trim();
+      const apiKey = String(formData.get('api_key') ?? '').trim();
+
+      if (!name || !arcana || !element) {
+        setCreateStatus('Udfyld navn, arcana og element.', 'error');
+        return;
+      }
+      if (!apiKey) {
+        setCreateStatus('Angiv API-nøgle for at gemme kortet.', 'error');
+        return;
+      }
+
+      const numberRaw = String(formData.get('number') ?? '').trim();
+      const number = numberRaw === '' ? null : Number(numberRaw);
+      if (number !== null && !Number.isFinite(number)) {
+        setCreateStatus('Nummer skal være et tal.', 'error');
+        return;
+      }
+
+      const valueOrNull = (key) => {
+        const value = String(formData.get(key) ?? '').trim();
+        return value === '' ? null : value;
+      };
+
+      const payload = {
+        name,
+        arcana,
+        element,
+        number,
+        suit: valueOrNull('suit'),
+        description: valueOrNull('description'),
+        upright_meaning: valueOrNull('upright_meaning'),
+        reversed_meaning: valueOrNull('reversed_meaning'),
+        love_meaning: valueOrNull('love_meaning'),
+        career_meaning: valueOrNull('career_meaning'),
+        spiritual_meaning: valueOrNull('spiritual_meaning'),
+        image_url: valueOrNull('image_url'),
+        keywords: valueOrNull('keywords'),
+      };
+
+      setCreateStatus('Gemmer kort…');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+      }
+
+      try {
+        const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey,
+          },
+          body: JSON.stringify(payload),
+        });
+        await parseJsonWithErrors(response);
+        setCreateStatus(`Kortet "${name}" blev gemt!`, 'success');
+
+        const preservedKey = apiKeyInput ? apiKeyInput.value : '';
+        createForm.reset();
+        if (apiKeyInput) {
+          apiKeyInput.value = preservedKey;
+        }
+
+        load(lastQuery);
+      } catch (err) {
+        console.error('Kunne ikke oprette kort', err);
+        const detail = err?.payload?.message || err?.raw;
+        const message = detail ? `${err.message}: ${detail}` : (err.message || 'Kunne ikke oprette kortet.');
+        setCreateStatus(message, 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+        }
+      }
+    }
+
+    function load(query) {
+      lastQuery = query;
+      fetch(`${apiEndpoint}${query}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (!Array.isArray(data)) {
+            throw new Error('Uventet svarformat');
+          }
+          currentCards = data;
+          if (!query) {
+            fullDeck = data;
+          }
+          renderCards(data);
+        })
+        .catch(err => {
+          console.error('Kunne ikke hente kort', err);
+          grid.innerHTML = '<p>Kunne ikke hente kort.</p>';
+        });
+    }
+
+    function drawRandom() {
+      fetch(`${apiEndpoint}?random=1`, { cache: 'no-store' })
+        .then(parseJsonWithErrors)
+        .then(card => {
+          if (!card || card.error) {
+            throw new Error(card?.error || 'Uventet svarformat');
+          }
+          renderCards([card]);
+        })
+        .catch(err => {
+          console.error('Kunne ikke trække kort', err);
+          const fallbackSource = (fullDeck.length && fullDeck) || currentCards;
+          if (fallbackSource.length) {
+            const randomCard = fallbackSource[Math.floor(Math.random() * fallbackSource.length)];
+            renderCards([randomCard]);
+            return;
+          }
+          grid.innerHTML = `<p>${escapeHTML(err.message || 'Kunne ikke trække et kort.')}</p>`;
+        });
+    }
+
+    function renderCards(cards) {
+      currentCards = cards;
+      if (!cards.length) {
+        grid.innerHTML = '<p>Ingen kort fundet.</p>';
+        return;
+      }
+      grid.innerHTML = cards.map(renderCard).join('');
+    }
+
+    function renderCard(card) {
+      const rawImage = (card.image_url || '').trim();
+      const imagePath = escapeHTML(rawImage);
+      const name = escapeHTML((card.name || '').trim());
+      const arcana = escapeHTML(card.arcana || '');
+      const element = escapeHTML(card.element || '');
+      const metaLine = [arcana, element].filter(Boolean).join(' — ');
+      const keywords = escapeHTML(card.keywords || '');
+      const hasImage = Boolean(rawImage);
+      const fallbackText = hasImage ? '' : 'Intet billede tilgængeligt.';
+      const sections = [
+        buildInfoSection('Beskrivelse', card.description),
+        buildInfoSection('Opretning', card.upright_meaning),
+        buildInfoSection('Omvendt', card.reversed_meaning),
+        buildInfoSection('Kærlighed', card.love_meaning),
+        buildInfoSection('Karriere', card.career_meaning),
+        buildInfoSection('Spirituel', card.spiritual_meaning)
+      ].join('');
+      const backContent = sections || '<p>Ingen tekst tilgængelig.</p>';
+
+      return `
+        <div class="card" tabindex="0" aria-label="${name}" aria-expanded="false">
+          <div class="card-face" data-flip="true">
+            ${hasImage ? `<img src="${imagePath}" alt="${name}" loading="lazy" referrerpolicy="no-referrer" data-image>` : ''}
+            <div class="image-fallback"${hasImage ? ' hidden' : ''} data-image-fallback>${fallbackText}</div>
+            <h3>${name}</h3>
+            ${metaLine ? `<p><b>${metaLine}</b></p>` : ''}
+            ${keywords ? `<p class="keywords">${keywords}</p>` : ''}
+            <span class="flip-hint">Klik eller brug Enter for fortolkning</span>
+            <button type="button" class="toggle-details" data-toggle>Vis tekst</button>
+          </div>
+          <div class="card-details" hidden>
+            ${backContent}
+          </div>
+        </div>
+      `;
+    }
+
+    function buildInfoSection(title, rawValue) {
+      const value = String(rawValue ?? '').trim();
+      if (!value) {
+        return '';
+      }
+      return `
+        <section>
+          <h4>${title}</h4>
+          <p>${formatText(value)}</p>
+        </section>
+      `;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatText(value) {
+      return escapeHTML(value).replace(/\r?\n/g, '<br>');
+    }
+
+    function parseJsonWithErrors(response) {
+      return response.text().then(text => {
+        const trimmed = text.trim();
+        let payload = null;
+        if (trimmed) {
+          try {
+            payload = JSON.parse(trimmed);
+          } catch (err) {
+            const parseError = new Error('Kunne ikke læse server-svaret.');
+            parseError.raw = trimmed.slice(0, 200);
+            parseError.status = response.status;
+            throw parseError;
+          }
+        }
+        if (!response.ok) {
+          const message = (payload && payload.error) || `HTTP ${response.status}`;
+          const error = new Error(message);
+          error.status = response.status;
+          if (payload && typeof payload === 'object') {
+            error.payload = payload;
+          } else if (trimmed) {
+            error.raw = trimmed.slice(0, 200);
+          }
+          throw error;
+        }
+        return payload;
+      });
+    }
+
+    function safeJsonParse(raw) {
+      try {
+        return JSON.parse(raw);
+      } catch (err) {
+        throw new Error('Kunne ikke læse server-svaret.');
+      }
+    }
+
+    function handleCardClick(event) {
+      const toggleBtn = event.target.closest('[data-toggle]');
+      const card = event.target.closest('.card');
+      if (!card) {
+        return;
+      }
+      if (toggleBtn) {
+        event.stopPropagation();
+        setCardOpen(card, !card.classList.contains('is-open'));
+        return;
+      }
+      const face = event.target.closest('.card-face');
+      if (face) {
+        setCardOpen(card, !card.classList.contains('is-open'));
+      }
+    }
+
+    function handleFlipWithKeyboard(event) {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      const card = event.target.closest('.card');
+      if (!card || event.target !== card) {
+        return;
+      }
+      event.preventDefault();
+      setCardOpen(card, !card.classList.contains('is-open'));
+    }
+
+    function setCardOpen(card, open) {
+      card.classList.toggle('is-open', open);
+      card.setAttribute('aria-expanded', open ? 'true' : 'false');
+      const details = card.querySelector('.card-details');
+      if (details) {
+        details.hidden = !open;
+        if (open) {
+          details.scrollTop = 0;
+        }
+      }
+      const toggleBtn = card.querySelector('.card-face .toggle-details');
+      if (toggleBtn) {
+        toggleBtn.textContent = open ? 'Skjul tekst' : 'Vis tekst';
+        toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+    }
+
+    function handleImageError(event) {
+      const img = event.target;
+      if (!img.matches('[data-image]')) {
+        return;
+      }
+      const face = img.closest('.card-face');
+      if (face) {
+        const fallback = face.querySelector('[data-image-fallback]');
+        if (fallback) {
+          fallback.textContent = 'Kunne ikke hente billedet.';
+          fallback.hidden = false;
+        }
+      }
+      img.remove();
+    }
+
+    function setCreateStatus(message, type = '') {
+      if (!createMessage) {
+        return;
+      }
+      createMessage.textContent = message;
+      createMessage.classList.remove('error', 'success');
+      if (type) {
+        createMessage.classList.add(type);
+      }
+    }
+  </script>
+</body>
+</html>
